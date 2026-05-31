@@ -73,14 +73,6 @@ export default function LandingPage() {
       <Navbar scrollToId={scrollToId} />
       <HeroSection scrollToId={scrollToId} />
       <AboutSection />
-      <ProductSection
-        products={productsData}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        activeCategory={activeCategory}
-        setActiveCategory={setActiveCategory}
-        onQuickView={setActiveQuickView}
-      />
       <Footer scrollToId={scrollToId} />
       {activeQuickView && (
         <ProductDetailModal

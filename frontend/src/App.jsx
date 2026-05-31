@@ -1,5 +1,8 @@
 import { Toaster } from 'react-hot-toast';
 import AppRoutes from './routes/AppRoutes';
+import ProductListPage from './pages/product/ProductListPage';
+import ProductDetailPage from './pages/product/ProductDetailPage';
+import ProductFormPage from './pages/product/ProductFormPage';
 
 export default function App() {
   return (

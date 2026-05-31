@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, User, Shield, Key, Users, X } from 'lucide-react';
+import { LayoutDashboard,Shirt ,  User, Shield, Key, Users, X, } from 'lucide-react';
 
 const menuItems = [
   { label: 'Dashboard',   icon: LayoutDashboard, to: '/admin/dashboard' },
+  { label: 'Product',     icon: Shirt,           to: '/admin/product' },
   { label: 'Profile',     icon: User,            to: '/admin/profile' },
   { label: 'Roles',       icon: Shield,          to: '/admin/roles' },
   { label: 'Permissions', icon: Key,             to: '/admin/permissions' },
