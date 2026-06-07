@@ -13,6 +13,8 @@ class StatusSeeder extends Seeder
             ['name_status' => 'Aktif',    'type_status' => 'product'],
             ['name_status' => 'Nonaktif', 'type_status' => 'product'],
             ['name_status' => 'Habis',    'type_status' => 'product'],
+            ['name_status' => 'Aktif',    'type_status' => 'categories'],
+            ['name_status' => 'Nonaktif', 'type_status' => 'categories'],
         ];
 
         foreach ($statuses as $status) {

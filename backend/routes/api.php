@@ -10,79 +10,80 @@ use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
 // ==================== PUBLIC ROUTES ====================
+
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login',    [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login']);
 });
 
+// ==================== PUBLIC PRODUCTS ====================
+
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+
+// ==================== PUBLIC CATEGORIES ====================
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+
 // ==================== PROTECTED ROUTES ====================
+
 Route::middleware('auth:sanctum')->group(function () {
 
     // Auth
     Route::prefix('auth')->group(function () {
-        Route::get('/profile',     [AuthController::class, 'profile']);
-        Route::post('/logout',     [AuthController::class, 'logout']);
+        Route::get('/profile', [AuthController::class, 'profile']);
+        Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     });
 
-    // Admin only
+    // ==================== ADMIN ONLY ====================
+
     Route::middleware('role:admin')->prefix('admin')->group(function () {
 
-        // Roles
-        Route::get('/roles',         [RolePermissionController::class, 'indexRoles']);
-        Route::post('/roles',        [RolePermissionController::class, 'storeRole']);
-        Route::put('/roles/{id}',    [RolePermissionController::class, 'updateRole']);
+        Route::get('/roles', [RolePermissionController::class, 'indexRoles']);
+        Route::post('/roles', [RolePermissionController::class, 'storeRole']);
+        Route::put('/roles/{id}', [RolePermissionController::class, 'updateRole']);
         Route::delete('/roles/{id}', [RolePermissionController::class, 'destroyRole']);
 
-        // Permissions
-        Route::get('/permissions',            [RolePermissionController::class, 'indexPermissions']);
-        Route::post('/permissions',           [RolePermissionController::class, 'storePermission']);
-        Route::delete('/permissions/{id}',    [RolePermissionController::class, 'destroyPermission']);
+        Route::get('/permissions', [RolePermissionController::class, 'indexPermissions']);
+        Route::post('/permissions', [RolePermissionController::class, 'storePermission']);
+        Route::delete('/permissions/{id}', [RolePermissionController::class, 'destroyPermission']);
 
-        // User Management
-        Route::get('/users',                          [UserController::class, 'index']);
-        Route::get('/users/{id}',                     [UserController::class, 'show']);
-        Route::post('/users/{id}/change-password',    [UserController::class, 'changePassword']);
-        Route::delete('/users/{id}',                  [UserController::class, 'destroy']);
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/users/{id}', [UserController::class, 'show']);
+        Route::post('/users/{id}/change-password', [UserController::class, 'changePassword']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-        // Assign role ke user (tetap ada untuk keperluan admin)
-        Route::post('/users/{userId}/assign-role',    [RolePermissionController::class, 'assignRole']);
+        Route::post('/users/{userId}/assign-role', [RolePermissionController::class, 'assignRole']);
     });
 
-    // ==================== MODUL PRODUK ====================
+    // ==================== MANAGE PRODUCTS ====================
 
-    // Baca produk & kategori — butuh permission view-products
-    Route::middleware('permission:view-products')->group(function () {
-        Route::get('/products',        [ProductController::class, 'index']);
-        Route::get('/products/{id}',   [ProductController::class, 'show']);
-
-        Route::get('/categories',      [CategoryController::class, 'index']);
-        Route::get('/categories/{id}', [CategoryController::class, 'show']);
-    });
-
-    // Kelola produk & kategori — butuh permission manage-products
     Route::middleware('permission:manage-products')->group(function () {
-        // Produk
-        Route::post('/products',        [ProductController::class, 'store']);
-        Route::put('/products/{id}',    [ProductController::class, 'update']);
+
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
-        // Asosiasi kategori produk
         Route::put('/products/{product}/categories', [ProductController::class, 'syncCategories']);
 
-        // Varian produk
-        Route::post('/products/{product}/variants',             [ProductVariantController::class, 'store']);
-        Route::put('/products/{product}/variants/{variant}',    [ProductVariantController::class, 'update']);
+        Route::post('/products/{product}/variants', [ProductVariantController::class, 'store']);
+        Route::put('/products/{product}/variants/{variant}', [ProductVariantController::class, 'update']);
         Route::delete('/products/{product}/variants/{variant}', [ProductVariantController::class, 'destroy']);
 
-        // Gambar produk
-        Route::post('/products/{product}/images',         [ProductImageController::class, 'store']);
-        Route::put('/products/{product}/images/{image}',  [ProductImageController::class, 'update']);
+        Route::post('/products/{product}/images', [ProductImageController::class, 'store']);
+        Route::put('/products/{product}/images/{image}', [ProductImageController::class, 'update']);
         Route::delete('/products/{product}/images/{image}', [ProductImageController::class, 'destroy']);
+    });
 
-        // Kategori
-        Route::post('/categories',        [CategoryController::class, 'store']);
-        Route::put('/categories/{id}',    [CategoryController::class, 'update']);
+    // ==================== MANAGE CATEGORIES ====================
+
+    Route::middleware('permission:manage-categories')->group(function () {
+
+        Route::post('/categories', [CategoryController::class, 'store']);
+        Route::put('/categories/{id}', [CategoryController::class, 'update']);
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
     });
 });

@@ -245,25 +245,21 @@ class ProductController extends Controller
      * Buat gambar produk sambil menjaga hanya satu gambar utama.
      */
     private function createImages(Product $product, array $images): void
-    {
-        $primaryAssigned = false;
+{
+    foreach ($images as $index => $image) {
 
-        foreach ($images as $image) {
-            $isPrimary = (bool) ($image['is_primary'] ?? false);
+        $path = $image->store(
+            'products',
+            'public'
+        );
 
-            if ($isPrimary) {
-                // Nonaktifkan primary lain bila gambar ini jadi utama.
-                $product->images()->update(['is_primary' => false]);
-                $primaryAssigned = true;
-            }
-
-            $product->images()->create([
-                'url'        => $image['url'],
-                'is_primary' => $isPrimary,
-                'sort_order' => $image['sort_order'] ?? 0,
-            ]);
-        }
+        $product->images()->create([
+            'url' => '/storage/' . $path,
+            'is_primary' => $index === 0,
+            'sort_order' => $index,
+        ]);
     }
+}
 
     /**
      * Aturan validasi produk.
@@ -290,7 +286,7 @@ class ProductController extends Controller
             'variants.*.status_id' => ['required_with:variants', 'integer', 'exists:statuses,id'],
 
             'images'               => ['sometimes', 'array'],
-            'images.*.url'         => ['required_with:images', 'string', 'max:2048'],
+            'images.*'             => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'images.*.is_primary'  => ['sometimes', 'boolean'],
             'images.*.sort_order'  => ['sometimes', 'integer', 'min:0'],
         ];
