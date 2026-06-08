@@ -11,6 +11,8 @@ import RolesPage from '../pages/admin/roles/RolesPage';
 import PermissionsPage from '../pages/admin/permissions/PermissionsPage';
 import UsersPage from '../pages/admin/users/UsersPage';
 import CustomerHomePage from '../pages/customer/CustomerHomePage';
+import CustomerServicePage from '../pages/customer-service/CustomerServicePage';
+import AdminCustomerServicePage from '../pages/admin/customer-service/AdminCustomerServicePage';
 
 // Helper: ambil role dari localStorage
 function getUserRole() {
@@ -64,6 +66,7 @@ export default function AppRoutes() {
         <Route element={<CustomerRoute />}>
           <Route element={<CustomerLayout />}>
             <Route path="/customer" element={<CustomerHomePage />} />
+            <Route path="/customer-service" element={<CustomerServicePage />} />
           </Route>
         </Route>
 
@@ -75,6 +78,7 @@ export default function AppRoutes() {
             <Route path="/admin/roles"       element={<RolesPage />} />
             <Route path="/admin/permissions" element={<PermissionsPage />} />
             <Route path="/admin/users"       element={<UsersPage />} />
+            <Route path="/admin/customer-service" element={<AdminCustomerServicePage />} />
           </Route>
         </Route>
 

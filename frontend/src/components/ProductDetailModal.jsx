@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Star, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageCircle, X, Star, Check } from 'lucide-react';
 import bannerImg from '../assets/banner.jpeg';
 import kaos2 from '../assets/kaos2.jpeg';
 import kaos3 from '../assets/kaos3.jpeg';
@@ -9,6 +10,7 @@ function ProductDetailModal({ product, onClose }) {
   if (!product) return null;
 
   const [selectedSize, setSelectedSize] = useState('L');
+  const navigate = useNavigate();
 
   // Image source matcher to represent actual local assets
   const getProductImage = (productId) => {
@@ -17,6 +19,16 @@ function ProductDetailModal({ product, onClose }) {
     if (productId === 3) return kaos3; // Tote Bag
     if (productId === 4) return kaos4; // Kaos Polo
     return bannerImg;
+  };
+
+  const handleChat = () => {
+    onClose();
+    navigate('/customer-service', {
+      state: {
+        subject: `Tanya ${product.name}`,
+        message: `Halo admin, saya ingin bertanya tentang ${product.name} ukuran ${selectedSize}.`,
+      },
+    });
   };
 
   return (
@@ -107,6 +119,28 @@ function ProductDetailModal({ product, onClose }) {
                 </li>
               ))}
             </ul>
+
+            <button
+              onClick={handleChat}
+              style={{
+                width: '100%',
+                height: '44px',
+                borderRadius: '8px',
+                border: '1px solid rgba(245,158,11,0.35)',
+                background: 'rgba(245,158,11,0.1)',
+                color: 'var(--primary)',
+                fontSize: '14px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              <MessageCircle size={17} />
+              Chat Admin
+            </button>
           </div>
         </div>
       </div>
