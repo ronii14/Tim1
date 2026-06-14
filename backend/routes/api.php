@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\Admin\CustomerService\AdminCustomerServiceConversationController;
+use App\Http\Controllers\API\CustomerService\CustomerServiceConversationController;
 use App\Http\Controllers\API\RolePermissionController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +21,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile',     [AuthController::class, 'profile']);
         Route::post('/logout',     [AuthController::class, 'logout']);
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+    });
+
+    // Customer Service
+    Route::prefix('customer-service')->group(function () {
+        Route::get('/conversations', [CustomerServiceConversationController::class, 'index']);
+        Route::post('/conversations', [CustomerServiceConversationController::class, 'store']);
+        Route::get('/conversations/{conversation}', [CustomerServiceConversationController::class, 'show']);
+        Route::post('/conversations/{conversation}/messages', [CustomerServiceConversationController::class, 'sendMessage']);
     });
 
     // Admin only
@@ -43,5 +53,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Assign role ke user (tetap ada untuk keperluan admin)
         Route::post('/users/{userId}/assign-role',    [RolePermissionController::class, 'assignRole']);
+
+        // Customer Service
+        Route::prefix('customer-service')->group(function () {
+            Route::get('/conversations', [AdminCustomerServiceConversationController::class, 'index']);
+            Route::get('/conversations/{conversation}', [AdminCustomerServiceConversationController::class, 'show']);
+            Route::post('/conversations/{conversation}/messages', [AdminCustomerServiceConversationController::class, 'sendMessage']);
+            Route::patch('/conversations/{conversation}/status', [AdminCustomerServiceConversationController::class, 'updateStatus']);
+        });
     });
 });

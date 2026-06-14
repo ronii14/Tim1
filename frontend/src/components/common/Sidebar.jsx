@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, User, Shield, Key, Users, X } from 'lucide-react';
+import { Headphones, LayoutDashboard, User, Shield, Key, Users, X } from 'lucide-react';
 
 const menuItems = [
   { label: 'Dashboard',   icon: LayoutDashboard, to: '/admin/dashboard' },
@@ -7,6 +7,7 @@ const menuItems = [
   { label: 'Roles',       icon: Shield,          to: '/admin/roles' },
   { label: 'Permissions', icon: Key,             to: '/admin/permissions' },
   { label: 'Users',       icon: Users,           to: '/admin/users' },
+  { label: 'Customer Service', icon: Headphones, to: '/admin/customer-service' },
 ];
 
 export default function Sidebar({ isOpen, onClose, isDesktop }) {
