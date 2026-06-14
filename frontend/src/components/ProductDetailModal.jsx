@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   X,
   Star,
   ShoppingCart,
   ChevronLeft,
   ChevronRight,
+  MessageCircle,
 } from "lucide-react";
 
 function formatRupiah(number) {
@@ -19,6 +21,7 @@ export default function ProductDetailModal({
   product,
   onClose,
 }) {
+  const navigate = useNavigate();
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
@@ -79,6 +82,16 @@ export default function ProductDetailModal({
     setActiveImage((prev) =>
       prev === 0 ? images.length - 1 : prev - 1
     );
+  };
+
+  const handleChat = () => {
+    onClose();
+    navigate('/customer-service', {
+      state: {
+        subject: `Tanya ${product.name}`,
+        message: `Halo admin, saya ingin bertanya tentang ${product.name} ukuran ${selectedSize}.`,
+      },
+    });
   };
 
   return (
@@ -430,6 +443,30 @@ export default function ProductDetailModal({
               </span>
             )}
           </div>
+
+          {/* CHAT ADMIN */}
+          <button
+            onClick={handleChat}
+            style={{
+              width: "100%",
+              height: "44px",
+              borderRadius: "8px",
+              border: "1px solid rgba(245,158,11,0.35)",
+              background: "rgba(245,158,11,0.1)",
+              color: "#f59e0b",
+              fontSize: "14px",
+              fontWeight: 800,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              marginBottom: "12px",
+            }}
+          >
+            <MessageCircle size={17} />
+            Chat Admin
+          </button>
 
           {/* TOMBOL KERANJANG */}
           <button

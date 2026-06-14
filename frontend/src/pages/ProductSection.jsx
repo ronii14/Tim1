@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, Star, Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageCircle, Search, Star, Info } from 'lucide-react';
 import bannerImg from '../assets/banner.jpeg';
 import kaos2 from '../assets/kaos2.jpeg';
 import kaos3 from '../assets/kaos3.jpeg';
@@ -14,6 +15,7 @@ function ProductSection({
   setActiveCategory, 
   onQuickView
 }) {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   // Fetch kategori aktif dari API
@@ -26,7 +28,7 @@ function ProductSection({
       .catch(() => setCategories([]));
   }, []);
 
-  // Filter produk berdasarkan search dan kategori
+  // Filter products based on search and category
   const filteredProducts = products.filter((prod) => {
     const matchesCategory =
       activeCategory === '' ||
@@ -66,6 +68,15 @@ function ProductSection({
       />
     </svg>
   );
+
+  const goToCustomerService = (product) => {
+    navigate('/customer-service', {
+      state: {
+        subject: `Tanya ${product.name}`,
+        message: `Halo admin, saya ingin bertanya tentang ${product.name}.`,
+      },
+    });
+  };
 
   return (
     <section id="katalog" className="catalog-section" style={{ background: '#08090c' }}>
@@ -180,6 +191,7 @@ function ProductSection({
                     style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }}
                   />
 
+                  {/* Hover Overlay with Detail and Chat actions */}
                   <div className="product-overlay-actions">
                     <button
                       onClick={(e) => { e.stopPropagation(); onQuickView(prod); }}
@@ -194,6 +206,15 @@ function ProductSection({
                       }}
                     >
                       {renderCustomCartIcon('w-5 h-5', { width: '20px', height: '20px' })}
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); goToCustomerService(prod); }}
+                      className="action-circle-btn"
+                      title="Chat admin"
+                      aria-label={`Chat admin tentang ${prod.name}`}
+                      style={{ background: '#111216', color: 'var(--primary)', border: '1px solid rgba(245,158,11,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <MessageCircle size={20} />
                     </button>
                   </div>
                 </div>
@@ -223,34 +244,55 @@ function ProductSection({
                     </span>
                   </div>
 
-                  <div
-                    className="product-footer"
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                  >
-                    <span style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>
-                      Rp {Number(prod.price).toLocaleString('id-ID')}
+                  <div className="product-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                    <span className="product-price" style={{ fontSize: '16px', fontWeight: '800', color: '#ffffff' }}>
+                      Rp {prod.price.toLocaleString('id-ID')}
                     </span>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goToCustomerService(prod); }}
+                        className="add-cart-text-btn"
+                        title="Chat admin"
+                        aria-label={`Chat admin tentang ${prod.name}`}
+                        style={{
+                          color: 'var(--primary)',
+                          background: 'rgba(245, 158, 11, 0.08)',
+                          border: '1px solid rgba(245, 158, 11, 0.15)',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <MessageCircle size={17} />
+                      </button>
 
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onQuickView(prod); }}
-                      className="add-cart-text-btn"
-                      style={{
-                        color: 'var(--primary)',
-                        background: 'rgba(245, 158, 11, 0.08)',
-                        border: '1px solid rgba(245, 158, 11, 0.15)',
-                        padding: '6px 14px',
-                        borderRadius: '6px',
-                        fontWeight: '700',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
-                    >
-                      {renderCustomCartIcon()}
-                      Detail
-                    </button>
+                      {/* Detail Button with Custom Cart SVG inside */}
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); onQuickView(prod); }} 
+                        className="add-cart-text-btn"
+                        style={{ 
+                          color: 'var(--primary)', 
+                          background: 'rgba(245, 158, 11, 0.08)', 
+                          border: '1px solid rgba(245, 158, 11, 0.15)', 
+                          padding: '6px 14px', 
+                          borderRadius: '6px',
+                          fontWeight: '700',
+                          fontSize: '13px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        {renderCustomCartIcon()}
+                        Detail
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
