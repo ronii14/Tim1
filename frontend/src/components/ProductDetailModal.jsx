@@ -8,6 +8,7 @@ import {
   ChevronRight,
   MessageCircle,
 } from "lucide-react";
+import { storageUrl } from "../services/config";
 
 function formatRupiah(number) {
   return new Intl.NumberFormat("id-ID", {
@@ -22,6 +23,7 @@ export default function ProductDetailModal({
   onClose,
 }) {
   const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem('token');
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
@@ -64,11 +66,7 @@ export default function ProductDetailModal({
     ? selectedVariant.stock
     : null; // null = belum pilih variant lengkap
 
-  const imageUrl = (url) => {
-    if (!url)
-      return "https://via.placeholder.com/500x500?text=No+Image";
-    return `http://localhost:8000${url}`;
-  };
+  const imageUrl = (url) => storageUrl(url);
 
   const nextImage = () => {
     if (images.length <= 1) return;
@@ -89,7 +87,7 @@ export default function ProductDetailModal({
     navigate('/customer-service', {
       state: {
         subject: `Tanya ${product.name}`,
-        message: `Halo admin, saya ingin bertanya tentang ${product.name} ukuran ${selectedSize}.`,
+        message: `Halo admin, saya ingin bertanya tentang ${product.name}${selectedSize ? ` ukuran ${selectedSize}` : ''}.`,
       },
     });
   };
@@ -444,29 +442,31 @@ export default function ProductDetailModal({
             )}
           </div>
 
-          {/* CHAT ADMIN */}
-          <button
-            onClick={handleChat}
-            style={{
-              width: "100%",
-              height: "44px",
-              borderRadius: "8px",
-              border: "1px solid rgba(245,158,11,0.35)",
-              background: "rgba(245,158,11,0.1)",
-              color: "#f59e0b",
-              fontSize: "14px",
-              fontWeight: 800,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              marginBottom: "12px",
-            }}
-          >
-            <MessageCircle size={17} />
-            Chat Admin
-          </button>
+          {/* CHAT ADMIN — hanya untuk user yg sudah login */}
+          {isAuthenticated && (
+            <button
+              onClick={handleChat}
+              style={{
+                width: "100%",
+                height: "44px",
+                borderRadius: "8px",
+                border: "1px solid rgba(245,158,11,0.35)",
+                background: "rgba(245,158,11,0.1)",
+                color: "#f59e0b",
+                fontSize: "14px",
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                marginBottom: "12px",
+              }}
+            >
+              <MessageCircle size={17} />
+              Chat Admin
+            </button>
+          )}
 
           {/* TOMBOL KERANJANG */}
           <button

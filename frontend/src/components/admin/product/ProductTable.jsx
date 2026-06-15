@@ -1,13 +1,11 @@
 import { useState } from "react";
-
-// ✅ Sesuaikan dengan URL Laravel kamu di file .env → VITE_API_URL=http://localhost:8000
-const BASE_URL = 'http://localhost:8000'; // ganti dengan URL Laravel kamu yang sebenarnya
+import { storageUrl } from "../../../services/config";
 
 const getThumbUrl = (images = []) => {
   const imgObj = images.find(i => i.is_primary) ?? images[0];
   if (!imgObj?.url) return null;
-  const url = imgObj.url.replace(/\\/g, '/'); // ganti backslash jadi slash
-  return url.startsWith('http') ? url : `${BASE_URL}${url}`;
+  const url = imgObj.url.replace(/\\/g, '/');
+  return storageUrl(url);
 };
 
 const ProductImage = ({ src, alt }) => {

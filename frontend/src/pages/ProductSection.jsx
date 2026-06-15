@@ -16,6 +16,7 @@ function ProductSection({
   onQuickView
 }) {
   const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem('token');
   const [categories, setCategories] = useState([]);
 
   // Fetch kategori aktif dari API
@@ -207,15 +208,17 @@ function ProductSection({
                     >
                       {renderCustomCartIcon('w-5 h-5', { width: '20px', height: '20px' })}
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); goToCustomerService(prod); }}
-                      className="action-circle-btn"
-                      title="Chat admin"
-                      aria-label={`Chat admin tentang ${prod.name}`}
-                      style={{ background: '#111216', color: 'var(--primary)', border: '1px solid rgba(245,158,11,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <MessageCircle size={20} />
-                    </button>
+                    {isAuthenticated && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); goToCustomerService(prod); }}
+                        className="action-circle-btn"
+                        title="Chat admin"
+                        aria-label={`Chat admin tentang ${prod.name}`}
+                        style={{ background: '#111216', color: 'var(--primary)', border: '1px solid rgba(245,158,11,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <MessageCircle size={20} />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -250,26 +253,28 @@ function ProductSection({
                     </span>
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); goToCustomerService(prod); }}
-                        className="add-cart-text-btn"
-                        title="Chat admin"
-                        aria-label={`Chat admin tentang ${prod.name}`}
-                        style={{
-                          color: 'var(--primary)',
-                          background: 'rgba(245, 158, 11, 0.08)',
-                          border: '1px solid rgba(245, 158, 11, 0.15)',
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <MessageCircle size={17} />
-                      </button>
+                      {isAuthenticated && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); goToCustomerService(prod); }}
+                          className="add-cart-text-btn"
+                          title="Chat admin"
+                          aria-label={`Chat admin tentang ${prod.name}`}
+                          style={{
+                            color: 'var(--primary)',
+                            background: 'rgba(245, 158, 11, 0.08)',
+                            border: '1px solid rgba(245, 158, 11, 0.15)',
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <MessageCircle size={17} />
+                        </button>
+                      )}
 
                       {/* Detail Button with Custom Cart SVG inside */}
                       <button 

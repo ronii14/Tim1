@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import ProductCard from "../../components/product/ProductCard";
 import { getProducts } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
+import { storageUrl } from "../../services/config";
 
 export default function ProductListPage() {
   const [products, setProducts]           = useState([]);
@@ -37,12 +38,12 @@ export default function ProductListPage() {
         ...product,
         image:
           product.images?.length > 0
-            ? `http://localhost:8000${product.images[0].url}`
+            ? storageUrl(product.images[0].url)
             : null,
         gallery:
           product.images?.map((img) => ({
             ...img,
-            fullUrl: `http://localhost:8000${img.url}`,
+            fullUrl: storageUrl(img.url),
           })) || [],
         sizes: [
           ...new Set(

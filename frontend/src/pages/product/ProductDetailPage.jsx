@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import ProductCard from "../../components/product/ProductCard";
 import { getProducts } from "../../services/productService";
+import { storageUrl } from "../../services/config";
 
 export default function ProductListPage() {
   const [products, setProducts] = useState([]);
@@ -32,7 +33,7 @@ export default function ProductListPage() {
           ...product,
 
           image: primaryImage?.url
-            ? `http://localhost:8000${primaryImage.url}`
+            ? storageUrl(primaryImage.url)
             : null,
 
           category:

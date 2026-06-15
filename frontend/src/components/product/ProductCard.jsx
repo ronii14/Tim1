@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ShoppingCart, X, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { storageUrl } from '../../services/config';
 
 function formatRupiah(number) {
   return new Intl.NumberFormat('id-ID', {
@@ -11,9 +12,10 @@ function formatRupiah(number) {
 
 // ─── Helper: ambil semua URL gambar dari produk ───────────────────────────────
 function getImages(product) {
+  if (!product) return ['https://via.placeholder.com/300'];
   if (product.images?.length) {
     return product.images.map((img) =>
-      img.url.startsWith('http') ? img.url : `http://localhost:8000${img.url}`
+      storageUrl(img.url)
     );
   }
   if (product.image) return [product.image];
