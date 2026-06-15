@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { ChevronDown, User, LogOut, ShoppingCart, Package, Home as HomeIcon, Menu, X } from 'lucide-react';
+import { ChevronDown, User, LogOut, ShoppingCart, Package, Home as HomeIcon, Menu, X, Headphones } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import authService from '../../services/authService';
 import ComingSoonModal from '../../components/common/ComingSoonModal';
@@ -61,10 +61,11 @@ export default function CustomerNavbar() {
     navigate('/login');
   };
 
-  // Nav items: Home = route biasa, sisanya coming soon
+
   const navItems = [
     { label: 'Home',         icon: HomeIcon,     to: '/customer',  comingSoon: false },
-    { label: 'Produk',       icon: Package,      to: null,         comingSoon: 'Produk' },
+    { label: 'Bantuan',      icon: Headphones,   to: '/customer-service', comingSoon: false },
+    { label: 'Produk',       icon: Package,      to: '/products',  comingSoon: false },
     { label: 'Pesanan Saya', icon: Package,      to: null,         comingSoon: 'Pesanan Saya' },
     { label: 'Keranjang',    icon: ShoppingCart, to: null,         comingSoon: 'Keranjang' },
   ];
