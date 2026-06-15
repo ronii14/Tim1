@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CustomerServiceMessage::class, 'sender_id');
     }
+
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }
