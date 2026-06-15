@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductImageController;
@@ -47,6 +48,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/conversations/{conversation}', [CustomerServiceConversationController::class, 'show']);
         Route::post('/conversations/{conversation}/messages', [CustomerServiceConversationController::class, 'sendMessage']);
     });
+
+    // Cart
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::delete('/cart', [CartController::class, 'clear']);
+    Route::put('/cart/{id}', [CartController::class, 'update']);
+    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 
     // Admin only
     Route::middleware('role:admin')->prefix('admin')->group(function () {
