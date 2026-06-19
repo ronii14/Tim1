@@ -1,132 +1,227 @@
-import { useState } from "react";
-import dummyCart from "../data/dummyCart";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { AlertTriangle, Loader2 } from "lucide-react";
+import cartService from "../services/cartService";
+import { storageUrl } from "../services/config";
 import CartItem from "../components/CartItem";
 import EmptyCart from "../components/EmptyCart";
 import OrderSummary from "../components/OrderSummary";
 
-/**
- * CartView.jsx
- * ------------
- * Halaman utama Cart / Keranjang Belanja Siber Merch.
- *
- * State:
- *  - cartItems : array item di keranjang, diinisialisasi dari dummyCart
- *
- * Handler:
- *  - handleIncrease : tambah quantity +1
- *  - handleDecrease : kurangi quantity -1 (minimum 1)
- *  - handleRemove   : hapus item dari keranjang
- */
 function CartView() {
-  // useState menyimpan daftar item keranjang
-  // Initial value diambil dari data dummy
-  const [cartItems, setCartItems] = useState(dummyCart);
+  const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ── Tambah quantity +1 ──
-  const handleIncrease = (id) => {
+  const mapCartItem = (item) => ({
+    id: item.id,
+    name: item.product?.name || "Produk tidak ditemukan",
+    size: item.variant?.name || "Default",
+    price: item.product?.price || 0,
+    quantity: item.quantity,
+    stock: item.variant?.stock ?? item.product?.stock ?? 0,
+    image: item.product?.images?.[0]?.url
+      ? storageUrl(item.product.images[0].url)
+      : "https://placehold.co/64x64/27272a/71717a?text=IMG",
+    cartItemId: item.id,
+  });
+
+  const fetchCart = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await cartService.getCart();
+      const items = res.data || [];
+      setCartItems(items.map(mapCartItem));
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        "Gagal memuat keranjang. Silakan coba lagi.";
+      setError(message);
+      setCartItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const handleIncrease = async (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    if (!item) return;
+    if (item.quantity >= item.stock) {
+      toast.error(`Stok ${item.name} hanya tersisa ${item.stock}`);
+      return;
+    }
     setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
+      prev.map((i) => (i.id === id ? { ...i, quantity: i.quantity + 1 } : i))
     );
+    try {
+      await cartService.updateCartItem(item.cartItemId, item.quantity + 1);
+    } catch {
+      setCartItems((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, quantity: item.quantity } : i))
+      );
+      toast.error("Gagal memperbarui kuantitas");
+    }
   };
 
-  // ── Kurangi quantity -1, minimum 1 ──
-  const handleDecrease = (id) => {
+  const handleDecrease = async (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    if (!item || item.quantity <= 1) return;
     setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity - 1) }
-          : item
-      )
+      prev.map((i) => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i))
     );
+    try {
+      await cartService.updateCartItem(item.cartItemId, item.quantity - 1);
+    } catch {
+      setCartItems((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, quantity: item.quantity } : i))
+      );
+      toast.error("Gagal memperbarui kuantitas");
+    }
   };
 
-  // ── Hapus item dari keranjang ──
-  const handleRemove = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemove = async (id) => {
+    const item = cartItems.find((i) => i.id === id);
+    if (!item) return;
+    setCartItems((prev) => prev.filter((i) => i.id !== id));
+    try {
+      await cartService.removeCartItem(item.cartItemId);
+      toast.success("Item dihapus dari keranjang");
+    } catch {
+      setCartItems((prev) => [...prev, item]);
+      toast.error("Gagal menghapus item");
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-
-      {/* ── Header / Navbar ── */}
-      <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
-              </svg>
-            </div>
-            <span className="font-bold text-lg tracking-tight">Siber Merch</span>
+  // Loading
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#08090c", padding: "40px 24px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "32px" }}>
+            <div className="h-7 w-44 bg-zinc-800 rounded-lg animate-pulse mb-2" />
+            <div className="h-4 w-28 bg-zinc-800/50 rounded animate-pulse" />
           </div>
-
-          {/* Badge jumlah item */}
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-            </svg>
-            <span>{cartItems.length} produk</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }} className="lg:flex-row">
+            <div style={{ flex: 1 }} className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-4 bg-zinc-900/50 rounded-xl p-5 border border-zinc-800">
+                  <div className="w-16 h-16 rounded-lg bg-zinc-800 animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-40 bg-zinc-800 rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-zinc-800/50 rounded animate-pulse" />
+                  </div>
+                  <div className="h-7 w-24 bg-zinc-800 rounded animate-pulse" />
+                  <div className="h-4 w-20 bg-zinc-800 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+            <div className="w-full lg:w-[440px]">
+              <div className="bg-[#101010] rounded-[24px] border border-[rgba(255,176,0,.15)] p-[45px_38px] space-y-3">
+                <div className="h-5 w-36 bg-zinc-800 rounded animate-pulse mx-auto" />
+                <div className="h-3 w-full bg-zinc-800/50 rounded animate-pulse" />
+                <div className="h-3 w-full bg-zinc-800/50 rounded animate-pulse" />
+                <div className="h-3 w-3/4 bg-zinc-800/50 rounded animate-pulse" />
+                <div className="border-t border-zinc-800" />
+                <div className="h-10 w-full bg-zinc-800 rounded-lg animate-pulse" />
+              </div>
+            </div>
           </div>
         </div>
-      </header>
+      </div>
+    );
+  }
 
-      {/* ── Main Content ── */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+  // Error
+  if (error) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#08090c", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="flex flex-col items-center text-center px-4">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4 ring-1 ring-red-500/20">
+            <AlertTriangle size={32} className="text-red-400" />
+          </div>
+          <h2 className="text-white font-semibold text-lg mb-1">Gagal Memuat Keranjang</h2>
+          <p className="text-zinc-500 text-sm max-w-xs mb-6">{error}</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/products')}
+              className="px-5 py-2.5 bg-zinc-800 text-zinc-300 rounded-lg font-medium text-sm hover:bg-zinc-700 transition-all"
+            >
+              Kembali Belanja
+            </button>
+            <button
+              onClick={fetchCart}
+              className="px-5 py-2.5 bg-amber-500 text-black rounded-lg font-semibold text-sm hover:bg-amber-400 transition-all flex items-center gap-2"
+            >
+              <Loader2 size={14} />
+              Coba Lagi
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-        {/* Judul Halaman */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white">Keranjang Belanja</h1>
-          <p className="text-zinc-500 text-sm mt-1">
+  return (
+    <div style={{ minHeight: "100vh", background: "#08090c", padding: "40px 24px" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+
+        {/* Page Title */}
+        <div style={{ marginBottom: "32px" }}>
+          <h1 style={{ margin: 0, fontSize: "28px", fontWeight: 800, color: "#ffffff" }}>
+            Keranjang Belanja
+          </h1>
+          <p style={{ margin: "6px 0 0", fontSize: "14px", color: "#64748b" }}>
             {cartItems.length > 0
               ? `${cartItems.length} produk dalam keranjang`
               : "Keranjang kamu masih kosong"}
           </p>
         </div>
 
-        {/* ── Layout 2 Kolom (desktop) / 1 Kolom (mobile) ── */}
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row" style={{ gap: "24px" }}>
 
-          {/* ── Kolom Kiri: Daftar Item ── */}
-          <div className="flex-1">
+          {/* Cart Items */}
+          <div style={{ flex: 1, minWidth: 0 }}>
             {cartItems.length === 0 ? (
-              // Tampilkan empty state jika keranjang kosong
               <EmptyCart />
             ) : (
-              // Tampilkan daftar item
-              <div className="space-y-3">
-                {/* Header kolom (hanya tampil di desktop) */}
-                <div className="hidden md:grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 pb-2 text-xs text-zinc-600 uppercase tracking-wider">
+              <>
+                {/* Desktop column headers */}
+                <div className="hidden md:grid grid-cols-[64px_1fr_120px_96px_32px] gap-4 px-5 py-2 text-[11px] text-zinc-600 uppercase tracking-wider">
+                  <span />
                   <span>Produk</span>
-                  <span className="text-center w-28">Quantity</span>
-                  <span className="text-right w-24">Subtotal</span>
-                  <span className="w-8" />
+                  <span className="text-center">Quantity</span>
+                  <span className="text-right">Subtotal</span>
+                  <span />
                 </div>
 
-                {/* Render setiap CartItem */}
-                {cartItems.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    item={item}
-                    onIncrease={handleIncrease}
-                    onDecrease={handleDecrease}
-                    onRemove={handleRemove}
-                  />
-                ))}
-              </div>
+                <div className="flex flex-col gap-4">
+                  {cartItems.map((item) => (
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      onIncrease={handleIncrease}
+                      onDecrease={handleDecrease}
+                      onRemove={handleRemove}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
-          {/* ── Kolom Kanan: Order Summary ── */}
-          <div className="w-full lg:w-80 xl:w-96">
+          {/* Order Summary */}
+          <div className="w-full lg:w-[380px] flex-shrink-0">
             <OrderSummary cartItems={cartItems} />
           </div>
 
         </div>
-      </main>
-
+      </div>
     </div>
   );
 }
