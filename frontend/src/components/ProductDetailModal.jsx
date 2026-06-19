@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import {
   X,
   Star,
@@ -7,8 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageCircle,
+  Loader2,
 } from "lucide-react";
 import { storageUrl } from "../services/config";
+import cartService from "../services/cartService";
 
 function formatRupiah(number) {
   return new Intl.NumberFormat("id-ID", {
@@ -27,6 +30,7 @@ export default function ProductDetailModal({
   const [activeImage, setActiveImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   if (!product) return null;
 
@@ -80,6 +84,32 @@ export default function ProductDetailModal({
     setActiveImage((prev) =>
       prev === 0 ? images.length - 1 : prev - 1
     );
+  };
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      toast.error("Pilih ukuran dan spesifikasi terlebih dahulu");
+      return;
+    }
+    if (currentStock <= 0) {
+      toast.error("Stok habis");
+      return;
+    }
+
+    setAddingToCart(true);
+    try {
+      await cartService.addToCart(product.id, selectedVariant.id, 1);
+      toast.success(`${product.name} ditambahkan ke keranjang!`);
+      onClose();
+      navigate('/cart');
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        "Gagal menambahkan ke keranjang";
+      toast.error(message);
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   const handleChat = () => {
@@ -470,7 +500,8 @@ export default function ProductDetailModal({
 
           {/* TOMBOL KERANJANG */}
           <button
-            disabled={!selectedVariant || currentStock <= 0}
+            onClick={handleAddToCart}
+            disabled={!selectedVariant || currentStock <= 0 || addingToCart}
             style={{
               width: "100%",
               padding: "14px",
@@ -486,7 +517,7 @@ export default function ProductDetailModal({
                   : "#94a3b8",
               fontWeight: 700,
               cursor:
-                selectedVariant && currentStock > 0
+                selectedVariant && currentStock > 0 && !addingToCart
                   ? "pointer"
                   : "not-allowed",
               display: "flex",
@@ -495,8 +526,14 @@ export default function ProductDetailModal({
               gap: 8,
             }}
           >
-            <ShoppingCart size={16} />
-            {!selectedVariant
+            {addingToCart ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <ShoppingCart size={16} />
+            )}
+            {addingToCart
+              ? "Menambahkan..."
+              : !selectedVariant
               ? "Pilih Varian Terlebih Dahulu"
               : currentStock > 0
               ? "Tambah ke Keranjang"

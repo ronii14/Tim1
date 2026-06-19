@@ -67,7 +67,7 @@ export default function CustomerNavbar() {
     { label: 'Bantuan',      icon: Headphones,   to: '/customer-service', comingSoon: false },
     { label: 'Produk',       icon: Package,      to: '/products',  comingSoon: false },
     { label: 'Pesanan Saya', icon: Package,      to: null,         comingSoon: 'Pesanan Saya' },
-    { label: 'Keranjang',    icon: ShoppingCart, to: null,         comingSoon: 'Keranjang' },
+    { label: 'Keranjang',    icon: ShoppingCart, to: '/cart',      comingSoon: false },
   ];
 
   const handleNavClick = (item, e) => {

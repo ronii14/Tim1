@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { ShoppingCart, X, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { ShoppingCart, X, Star, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { storageUrl } from '../../services/config';
+import cartService from '../../services/cartService';
 
 function formatRupiah(number) {
   return new Intl.NumberFormat('id-ID', {
@@ -133,6 +136,7 @@ function ImageSlider({ images, aspectRatio = '4/3', maxHeight }) {
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 function ProductModal({ product, onClose }) {
+  const navigate = useNavigate();
   const images = getImages(product);
   const variants = product.variants || [];
 
@@ -145,6 +149,7 @@ function ProductModal({ product, onClose }) {
 
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   // Filter tipe berdasarkan ukuran yang dipilih
   const typesForSize = selectedSize
@@ -159,6 +164,32 @@ function ProductModal({ product, onClose }) {
 
   const currentPrice = selectedVariant ? selectedVariant.price : product.price;
   const currentStock = selectedVariant ? selectedVariant.stock : null;
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      toast.error('Pilih ukuran dan spesifikasi terlebih dahulu');
+      return;
+    }
+    if (currentStock <= 0) {
+      toast.error('Stok habis');
+      return;
+    }
+
+    setAddingToCart(true);
+    try {
+      await cartService.addToCart(product.id, selectedVariant.id, 1);
+      toast.success(`${product.name} ditambahkan ke keranjang!`);
+      onClose();
+      navigate('/cart');
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        'Gagal menambahkan ke keranjang';
+      toast.error(message);
+    } finally {
+      setAddingToCart(false);
+    }
+  };
 
   return (
     <div
@@ -329,7 +360,8 @@ function ProductModal({ product, onClose }) {
 
           {/* TOMBOL KERANJANG */}
           <button
-            disabled={!selectedVariant || currentStock <= 0}
+            onClick={handleAddToCart}
+            disabled={!selectedVariant || currentStock <= 0 || addingToCart}
             style={{
               width: '100%', padding: '14px',
               borderRadius: '12px', border: 'none',
@@ -337,11 +369,17 @@ function ProductModal({ product, onClose }) {
               color: selectedVariant && currentStock > 0 ? '#000' : '#475569',
               fontSize: '14px', fontWeight: 700,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              cursor: selectedVariant && currentStock > 0 ? 'pointer' : 'not-allowed',
+              cursor: selectedVariant && currentStock > 0 && !addingToCart ? 'pointer' : 'not-allowed',
             }}
           >
-            <ShoppingCart size={16} />
-            {!selectedVariant
+            {addingToCart ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <ShoppingCart size={16} />
+            )}
+            {addingToCart
+              ? 'Menambahkan...'
+              : !selectedVariant
               ? 'Pilih Varian Terlebih Dahulu'
               : currentStock > 0
               ? 'Tambah ke Keranjang'
@@ -443,7 +481,10 @@ export default function ProductCard({ product }) {
           </div>
           <button
             disabled={isOutOfStock}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isOutOfStock) setShowModal(true);
+            }}
             style={{
               marginTop: '6px', width: '100%', padding: '10px',
               borderRadius: '10px', border: 'none',

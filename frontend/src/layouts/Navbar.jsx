@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { LogIn, ShoppingCart } from 'lucide-react';
 
 function Navbar({ scrollToId }) {
   const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   return (
     <nav className="navbar" style={{ background: '#08090c', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -44,13 +46,68 @@ function Navbar({ scrollToId }) {
 
         {/* Right actions */}
         <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={() => navigate('/login')}
-            className="btn btn-primary"
-            style={{ padding: '8px 16px', fontSize: '13px', borderRadius: '6px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <LogIn size={14} /> Login
-          </button>
+          {isAuthenticated ? (
+            <>
+              {/* Cart Icon */}
+              <button
+                onClick={() => navigate('/cart')}
+                style={{
+                  padding: '8px',
+                  borderRadius: '8px',
+                  background: 'rgba(245,158,11,0.1)',
+                  border: '1px solid rgba(245,158,11,0.2)',
+                  cursor: 'pointer',
+                  color: '#f59e0b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(245,158,11,0.2)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(245,158,11,0.1)'; }}
+                title="Keranjang Belanja"
+              >
+                <ShoppingCart size={16} />
+              </button>
+
+              {/* User info */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '6px 12px 6px 6px',
+                borderRadius: '8px',
+                background: 'rgba(255,255,255,0.03)',
+              }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  backgroundColor: 'rgba(245,158,11,0.2)',
+                  border: '1px solid rgba(245,158,11,0.5)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#fbbf24' }}>
+                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => navigate('/customer')}
+                  style={{
+                    fontSize: '13px', fontWeight: 600, color: '#ffffff',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  Dashboard
+                </button>
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="btn btn-primary"
+              style={{ padding: '8px 16px', fontSize: '13px', borderRadius: '6px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <LogIn size={14} /> Login
+            </button>
+          )}
         </div>
 
       </div>

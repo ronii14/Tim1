@@ -14,7 +14,7 @@ class CartController extends Controller
     public function index(Request $request)
     {
         $items = CartItem::where('user_id', $request->user()->id)
-            ->with(['product', 'variant'])
+            ->with(['product.images', 'variant'])
             ->latest()
             ->get();
 
@@ -44,7 +44,7 @@ class CartController extends Controller
         $item->quantity += $validated['quantity'];
         $item->save();
 
-        $item->load(['product', 'variant']);
+        $item->load(['product.images', 'variant']);
 
         return response()->json([
             'success' => true,
@@ -66,7 +66,7 @@ class CartController extends Controller
             ->findOrFail($id);
 
         $item->update(['quantity' => $validated['quantity']]);
-        $item->load(['product', 'variant']);
+        $item->load(['product.images', 'variant']);
 
         return response()->json([
             'success' => true,

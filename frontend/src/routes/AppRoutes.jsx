@@ -24,6 +24,7 @@ import CategoryPage from '../pages/admin/categories/CategoryPage';
 // Product Pages
 import ProductListPage from '../pages/product/ProductListPage';
 import ProductDetailPage from '../pages/product/ProductDetailPage';
+import CartView from '../pages/CartView';
 
 function getUserRole() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -108,6 +109,7 @@ export default function AppRoutes() {
             />
 
             <Route path="/customer-service" element={<CustomerServicePage />} />
+            <Route path="/cart" element={<CartView />} />
           </Route>
         </Route>
 
