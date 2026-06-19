@@ -1,0 +1,118 @@
+import { useNavigate } from 'react-router-dom';
+import { LogIn, ShoppingCart } from 'lucide-react';
+
+function Navbar({ scrollToId }) {
+  const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  return (
+    <nav className="navbar" style={{ background: '#08090c', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="container nav-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        {/* Logo */}
+        <a
+          href="#"
+          className="nav-logo"
+          onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#ffffff' }}
+        >
+          <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="var(--primary)" strokeWidth="2.5" style={{ width: '20px', height: '20px' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+            </svg>
+          </div>
+          <span style={{ fontWeight: 700, fontSize: '18px', letterSpacing: '0.5px' }}>Siber Merch</span>
+        </a>
+
+        {/* Nav Links */}
+        <ul className="nav-menu" style={{ display: 'flex', gap: '24px', listStyle: 'none' }}>
+          <li>
+            <a href="#" className="nav-link active" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              Home
+            </a>
+          </li>
+          <li>
+            <a href="#katalog" onClick={(e) => { e.preventDefault(); scrollToId('katalog'); }} className="nav-link">
+              Koleksi Kaos
+            </a>
+          </li>
+          <li>
+            <a href="#footer" onClick={(e) => { e.preventDefault(); scrollToId('footer'); }} className="nav-link">
+              Tentang SIBER
+            </a>
+          </li>
+        </ul>
+
+        {/* Right actions */}
+        <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {isAuthenticated ? (
+            <>
+              {/* Cart Icon */}
+              <button
+                onClick={() => navigate('/cart')}
+                style={{
+                  padding: '8px',
+                  borderRadius: '8px',
+                  background: 'rgba(245,158,11,0.1)',
+                  border: '1px solid rgba(245,158,11,0.2)',
+                  cursor: 'pointer',
+                  color: '#f59e0b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(245,158,11,0.2)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(245,158,11,0.1)'; }}
+                title="Keranjang Belanja"
+              >
+                <ShoppingCart size={16} />
+              </button>
+
+              {/* User info */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '6px 12px 6px 6px',
+                borderRadius: '8px',
+                background: 'rgba(255,255,255,0.03)',
+              }}>
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '50%',
+                  backgroundColor: 'rgba(245,158,11,0.2)',
+                  border: '1px solid rgba(245,158,11,0.5)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#fbbf24' }}>
+                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => navigate('/customer')}
+                  style={{
+                    fontSize: '13px', fontWeight: 600, color: '#ffffff',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  Dashboard
+                </button>
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => navigate('/login')}
+              className="btn btn-primary"
+              style={{ padding: '8px 16px', fontSize: '13px', borderRadius: '6px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <LogIn size={14} /> Login
+            </button>
+          )}
+        </div>
+
+      </div>
+    </nav>
+  );
+}
+
+export default Navbar;
