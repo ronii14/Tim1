@@ -283,7 +283,7 @@ function ProductModal({ product, onClose }) {
                     key={size}
                     onClick={() => {
                       setSelectedSize(size);
-                      setSelectedType(null);
+                      setSelectedType(null); // reset tipe saat ukuran berubah
                     }}
                     style={{
                       width: '44px', height: '44px',
