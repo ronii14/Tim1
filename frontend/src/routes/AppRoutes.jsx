@@ -20,11 +20,15 @@ import AdminCustomerServicePage from '../pages/admin/customer-service/AdminCusto
 
 import ProdukPage from '../pages/admin/product/ProdukPage';
 import CategoryPage from '../pages/admin/categories/CategoryPage';
+import AdminOrdersPage from '../pages/admin/orders/AdminOrdersPage';
 
 // Product Pages
 import ProductListPage from '../pages/product/ProductListPage';
 import ProductDetailPage from '../pages/product/ProductDetailPage';
 import CartView from '../pages/CartView';
+import CheckoutPage from '../pages/CheckoutPage';
+import OrderHistoryPage from '../pages/order/OrderHistoryPage';
+import OrderDetailPage from '../pages/order/OrderDetailPage';
 
 function getUserRole() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -110,6 +114,9 @@ export default function AppRoutes() {
 
             <Route path="/customer-service" element={<CustomerServicePage />} />
             <Route path="/cart" element={<CartView />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/orders" element={<OrderHistoryPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
           </Route>
         </Route>
 
@@ -123,6 +130,7 @@ export default function AppRoutes() {
             <Route path="/admin/users"       element={<UsersPage />} />
             <Route path="/admin/product" element={<ProdukPage />}/>
             <Route path="/admin/categories" element={<CategoryPage />}/>
+            <Route path="/admin/orders" element={<AdminOrdersPage />}/>
             <Route path="/admin/customer-service" element={<AdminCustomerServicePage />} />
           </Route>
         </Route>
