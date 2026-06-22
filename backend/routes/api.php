@@ -10,6 +10,10 @@ use App\Http\Controllers\API\Admin\CustomerService\AdminCustomerServiceConversat
 use App\Http\Controllers\API\CustomerService\CustomerServiceConversationController;
 use App\Http\Controllers\API\RolePermissionController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\AddressController;
+use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\Admin\AdminOrderController;
 use Illuminate\Support\Facades\Route;
 
 // ==================== PUBLIC ROUTES ====================
@@ -56,6 +60,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cart/{id}', [CartController::class, 'update']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 
+    // Addresses
+    Route::apiResource('addresses', AddressController::class);
+
+    // Orders & Checkout
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+
+    // Payment simulation
+    Route::post('/payments/{ref_code}/simulate', [PaymentController::class, 'simulate']);
+
     // Admin only
     Route::middleware('role:admin')->prefix('admin')->group(function () {
 
@@ -75,6 +91,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Assign role ke user (tetap ada untuk keperluan admin)
         Route::post('/users/{userId}/assign-role',    [RolePermissionController::class, 'assignRole']);
+
+        // Orders management
+        Route::get('/orders', [AdminOrderController::class, 'index']);
+        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
 
         // Customer Service
         Route::prefix('customer-service')->group(function () {
