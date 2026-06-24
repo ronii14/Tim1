@@ -84,6 +84,10 @@ export default function AdminOrdersPage() {
       return;
     }
 
+    const oldLabel = STATUS[order.status]?.label || order.status;
+    const newLabel = STATUS[newStatus]?.label || newStatus;
+    if (!confirm(`Ubah status pesanan dari "${oldLabel}" ke "${newLabel}"?`)) return;
+
     setUpdating(order.id);
     try {
       await api.patch(`/admin/orders/${order.id}/status`, { status: newStatus });

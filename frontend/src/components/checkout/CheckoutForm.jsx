@@ -69,6 +69,7 @@ function CheckoutForm({ cartItems, onOrderPlaced }) {
         address_id: addressId,
         payment_method: paymentMethod,
         shipping_method: shippingMethod,
+        shipping_cost: shippingCost,
         notes: notes || undefined,
       };
 
