@@ -1,7 +1,9 @@
 import { ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { formatRupiah } from "../utils/formatCurrency";
 
 function OrderSummary({ cartItems }) {
+  const navigate = useNavigate();
   const totalQty = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const grandTotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -89,7 +91,7 @@ function OrderSummary({ cartItems }) {
       {/* Button */}
       <button
         disabled={isEmpty}
-        onClick={() => alert("Fitur pembayaran akan segera hadir!")}
+        onClick={() => navigate('/checkout', { state: { cartItems } })}
         style={{
           width: "100%",
           height: "46px",
